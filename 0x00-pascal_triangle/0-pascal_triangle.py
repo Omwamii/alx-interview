@@ -9,15 +9,15 @@ def pascal_triangle(n):
     res = list()
     for i in range(0, n):
         row = list()
-        if i == 0 :
+        if i == 0:
             row.append(1)
-            res.append(row) # first element
+            res.append(row)  # first element
         else:
             row.append(1)
             for index, el in enumerate(res[i - 1]):
                 if index + 1 > len(res[i - 1]) - 1:
                     # out of range
-                    row.append(1) # enclosing 1
+                    row.append(1)  # enclosing 1
                 else:
                     row.append(el + res[i - 1][index + 1])
             res.append(row)
