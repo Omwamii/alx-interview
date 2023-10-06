@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 """ fn to generate pascal's triangle
 """
+
+
 def pascal_triangle(n):
     """ return list of lists of pascal's triangle numbers
     """
