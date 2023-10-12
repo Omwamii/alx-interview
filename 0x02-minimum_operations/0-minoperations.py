@@ -16,8 +16,7 @@ def minOperations(n):
     ops = 0
     while xters < n:
         if n % xters == 0:
-            # copy all
-            copied = xters
+            copied = xters  # copy all xters
             ops += 1  # operation
             xters += copied  # paste the copied xters
             ops += 1
