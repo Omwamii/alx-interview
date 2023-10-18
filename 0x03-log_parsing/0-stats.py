@@ -25,5 +25,5 @@ try:
                 print(f"{key}: {stats[key]}")
 except KeyboardInterrupt:
     print(f"File size: {file_size}")
-    for key in stats.keys():
+    for key in sorted(stats.keys()):
         print(f"{key}: {stats[key]}")
