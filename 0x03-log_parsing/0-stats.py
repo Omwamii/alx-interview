@@ -11,7 +11,7 @@ try:
 
         if len(data) < 2:
             continue
-
+        count += 1
         code, f_size = data[-2], int(data[-1])
         # store status codes -> count in dict & add file_size
         if not stats.get(code):
