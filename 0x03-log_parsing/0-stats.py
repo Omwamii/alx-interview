@@ -1,16 +1,17 @@
 #!/usr/bin/python3
 """ module with stats fn """
-
 import sys
 
-count = 0
 stats = {}
-file_size = 0
+file_size, count = 0, 0
 
 try:
     for line in sys.stdin:
-        count += 1
         data = line.split()
+
+        if len(data) < 2:
+            continue
+
         code, f_size = data[-2], int(data[-1])
         # store status codes -> count in dict & add file_size
         if not stats.get(code):
