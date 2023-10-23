@@ -24,6 +24,7 @@ try:
                 stats[code] = 1
             else:
                 stats[code] += 1  # count for number of spec status codes
+        finally:
             file_size += f_size
 
         if count % 10 == 0:
@@ -31,6 +32,7 @@ try:
             print(f"File size: {file_size}")
             for key in sorted(stats.keys()):
                 print(f"{key}: {stats[key]}")
+
 except KeyboardInterrupt:
     pass
 finally:
