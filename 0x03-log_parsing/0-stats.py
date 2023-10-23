@@ -13,12 +13,18 @@ try:
             continue
         count += 1
         code, f_size = data[-2], int(data[-1])
+
         # store status codes -> count in dict & add file_size
-        if not stats.get(code):
-            stats[code] = 1
+        try:
+            code = int(code)
+        except ValueError:
+            pass
         else:
-            stats[code] += 1  # count for number of spec status codes
-        file_size += f_size
+            if not stats.get(code):
+                stats[code] = 1
+            else:
+                stats[code] += 1  # count for number of spec status codes
+            file_size += f_size
 
         if count % 10 == 0:
             # print the stats
