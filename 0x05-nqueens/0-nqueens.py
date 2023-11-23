@@ -6,19 +6,19 @@ import sys
 def diagonals_safe(x, y, board, size):
     """ check +ve and -ve diagonals for threat """
     x_diag = x - 1
-    x_c, y_c = x, y  # copy values for neg_diag loop
-    while x_diag > 0:
+    x_c, y_c = x, y  # copy values for -ve diagonal loop
+    while x_diag >= 0:
         y_pos_diag = x_diag - x + y
         if y_pos_diag < 0:
-            # out of range, diag doesn't exist
+            # out of range, diagonal doesn't exist
             break
         if board[x_diag][y_pos_diag] == 1:
-            return False # +ve diagonal not safe
+            return False  # +ve diagonal not safe
         x, y = x_diag, y_pos_diag
         x_diag -= 1
 
     x_diag = x_c - 1
-    while x_diag > 0:
+    while x_diag >= 0:
         y_neg_diag = x_c - x_diag + y_c
         if y_neg_diag >= size:
             break
@@ -27,6 +27,7 @@ def diagonals_safe(x, y, board, size):
         x_c, y_c = x_diag, y_neg_diag
         x_diag -= 1
     return True
+
 
 def vert_safe(x, y, board):
     """ check y axis for any threat """
@@ -42,10 +43,16 @@ def n_recursive(num_queen, curr_row, board):
         curr_row: current row on chess board
         board: a list of lists (N X N) representing chess board with queens
     """
-    if curr_row >= len(board):
-        return  # exit condition
+    if curr_row >= len(board):  # exit condition
+        # all queens are set, print the soln
+        soln = list()
+        for idx, row in enumerate(board):
+            for pos, col in enumerate(row):
+                if col == 1:
+                    soln.append([idx, pos])
+        print(soln)
+        return
 
-    print(f"+++++ Row {curr_row} ++++++")
     if curr_row == 0:
         first_is_set = False
         for item in board[0]:
@@ -53,21 +60,29 @@ def n_recursive(num_queen, curr_row, board):
                 first_is_set = True
         if not first_is_set:
             # The first row was never set, first iteration
-            board[0][0] = 1 # default first position
-            print("Setting [0][0]")
+            board[0][0] = 1  # default first position
         else:
-            # result of backtracking, shift position of first queen
-            for index, n in enumerate(board[0]):
-                if index == num_queen - 1:
-                    # impossible to get soln, exit program
-                    return
-                if n == 1:
-                    new_pos = index + 1 # shift to right
-                    board[0][index] = 0  # clear position
-                    print(f"Setting [0][{new_pos}]")
-                    board[0][new_pos] = 1
-                    break
-        print()
+            try:
+                is_next_set = board[curr_row + 1].index(1)
+            except ValueError:
+                # result of backtracking, shift position of first queen
+                for index, n in enumerate(board[0]):
+                    if index == num_queen - 1:
+                        # impossible to get soln, exit program
+                        return
+                    if n == 1:
+                        new_pos = index + 1  # shift to right
+                        board[0][index] = 0  # clear position
+                        board[0][new_pos] = 1
+                        break
+            else:
+                # likely due to another iteration to find another possible soln
+                # set everything next to 0 for fresh sln
+                set_index = board[0].index(1)
+                board[0][set_index + 1] = 1  # shift to right
+                for x in range(curr_row + 1, num_queen):
+                    for y in range(0, num_queen):
+                        board[x][y] = 0
     else:
         is_set, was_set = False, False
         for index, item in enumerate(board[curr_row]):
@@ -79,8 +94,8 @@ def n_recursive(num_queen, curr_row, board):
             board[curr_row][set_index] = 0
             new_y = set_index + 1
             while new_y < num_queen:
-                print(f"Checking [{curr_row}][{new_y}] ...")
-                if vert_safe(curr_row, new_y, board) and diagonals_safe(curr_row, new_y, board, num_queen):
+                if vert_safe(curr_row, new_y, board) and\
+                        diagonals_safe(curr_row, new_y, board, num_queen):
                     board[curr_row][new_y] = 1
                     is_set = True
                     break
@@ -89,17 +104,18 @@ def n_recursive(num_queen, curr_row, board):
             # first time to set or a re-set (all zeros at the time)
             set_y = 0
             while set_y < num_queen:
-                print(f"Checking [{curr_row}][{set_y}] ...")
-                if vert_safe(curr_row, set_y, board) and diagonals_safe(curr_row, set_y, board, num_queen):
+                if vert_safe(curr_row, set_y, board) and\
+                        diagonals_safe(curr_row, set_y, board, num_queen):
                     board[curr_row][set_y] = 1
                     is_set = True
                     break
                 set_y += 1
-        print()
         if not is_set:
-            return  # no suitable position found, backtrack
+            # no position was found, backtrack
+            return n_recursive(num_queen, curr_row - 1, board)
     n_recursive(num_queen, curr_row + 1, board)
-    
+
+
 def nqueens():
     """ solve nqueens """
     if len(sys.argv) != 2:
@@ -122,7 +138,16 @@ def nqueens():
                 row.append(0)  # initialize each position to '0'
             board.append(row)
         n_recursive(arg, 0, board)
-        print(board)
+        try:
+            prev_lead = board[0].index(1)
+        except ValueError:
+            prev_lead = None
+        while prev_lead:
+            n_recursive(arg, 0, board)
+            new_lead = board[0].index(1)
+            if new_lead == prev_lead:  # no more solutions, exit
+                break
+            prev_lead = new_lead
 
 
 if __name__ == "__main__":
