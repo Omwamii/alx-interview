@@ -44,13 +44,13 @@ def vert_safe(x, y, board):
     return True
 
 
-def n_recursive(num_queen, curr_row, lead, board):
+def n_recursive(num_queen, x_val, y_val, board):
     """ recursively set queens on board correctly using backtracking
         num_queen: number of queens
         curr_row: current row on chess board
         board: a list of lists (N X N) representing chess board with queens
     """
-    if curr_row >= len(board):  # exit condition
+    if x_val >= len(board):  # exit condition
         # all queens are set, print the soln
         soln = list()
         for idx, row in enumerate(board):
@@ -60,50 +60,31 @@ def n_recursive(num_queen, curr_row, lead, board):
         print(soln)
         return True
 
-    if curr_row == 0:
-        board[0][lead] = 1  # default first position
-        # print(f"Iteration of [0][{lead}]")
-        return n_recursive(num_queen, curr_row + 1, lead, board)
-
-    else:
-        is_set = False
-        try:
-            set_index = board[curr_row].index(1)
-        except ValueError:
-            was_set = False
-        else:
-            was_set = True
-        if was_set:
-            # result of backtracking
-            # print(f"Row: {curr_row} A backtrack {board}")
-            board[curr_row][set_index] = 0  # clear the current position
-            new_y = set_index + 1
-            while new_y < num_queen:
-                if vert_safe(curr_row, new_y, board) and\
-                        diagonals_safe(curr_row, new_y, board, num_queen):
-                    board[curr_row][new_y] = 1
-                    # print(f"Set [{curr_row}][{new_y}]")
-                    is_set = True
-                    break
-                new_y += 1
-        else:
-            # first time to set or a re-set (all zeros at the time)
-            # print(f"Row {curr_row} A set or re-set (all 0) {board}")
-            set_y = 0
-            while set_y < num_queen:
-                if vert_safe(curr_row, set_y, board) and\
-                        diagonals_safe(curr_row, set_y, board, num_queen):
-                    board[curr_row][set_y] = 1
-                    # print(f"Set [{curr_row}][{set_y}]")
-                    is_set = True
-                    break
-                set_y += 1
-        if not is_set:
-            # no position was found, backtrack
-            if curr_row - 1 == 0:
-                return False
-            return n_recursive(num_queen, curr_row - 1, lead, board)
-        return n_recursive(num_queen, curr_row + 1, lead, board)
+    is_set, is_first = False, False
+    try:
+        set_y_prev = board[x_val].index(1)
+    except ValueError:
+        set_y_prev = 0  # first position as default
+        is_first = True if x_val == 0 else 0
+    finally:
+        board[x_val][set_y_prev] = 0  # clear current position if set
+        set_y = set_y_prev + 1 if not is_first else 0
+        while set_y < num_queen:
+            if (vert_safe(x_val, y_val, board) and
+        diagonals_safe(x_val, y_val, board, num_queen)):
+                board[x_val][set_y] = 1
+                while n_recursive(num_queen, x_val + 1, y_val, board):
+                    print(f"checking {x_val}")
+                    pass
+                print(f"Set [{x_val}][{set_y}]")
+                is_set = True
+                break
+        set_y += 1
+    if not is_set:
+        if x_val - 1 <= 0:
+            return False
+        return n_recursive(num_queen, x_val - 1, y_val, board)
+    return n_recursive(num_queen, x_val + 1, y_val, board)
 
 
 def nqueens():
@@ -127,10 +108,11 @@ def nqueens():
             for r in range(0, arg):
                 row.append(0)  # initialize each position to '0'
             board.append(row)
-        for i in range(0, arg):
-            while n_recursive(arg, 0, i, board):
-                pass
-            clear_board(board)  # clear the board for new soln
+        n_recursive(arg, 0, 0, board)
+        #for i in range(0, arg):
+        #    while n_recursive(arg, 0, i, board):
+        #        pass
+        #    clear_board(board)  # clear the board for new soln
 
 
 if __name__ == "__main__":
